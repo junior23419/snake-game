@@ -29,7 +29,7 @@ public class BodyNode : MonoBehaviour
 
             if (Vector3.Distance(targets[0], transform.position) < 0.05f||travelledDistance >1f) 
             {
-                Debug.Log("travelled" + travelledDistance);
+                //Debug.Log("travelled" + travelledDistance);
                 transform.position = new Vector3(Mathf.Round(transform.position.x), transform.position.y, Mathf.Round(transform.position.z));
                 travelledDistance = 0;
                 targets.RemoveAt(0);

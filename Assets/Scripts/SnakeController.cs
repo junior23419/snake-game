@@ -10,10 +10,12 @@ public class SnakeController : MonoBehaviour
     public GameObject bodyPrefab;
     public GameObject markerPrefab;
     List<BodyNode> bodies;
-    
+    bool dead = false;
     bool isMovingHorizontally = false;
-    List<Vector3> path;
+    [HideInInspector] public List<Vector3> path;
     Vector3 latestStamp;
+    public LevelController levelController;
+    int point = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -32,7 +34,8 @@ public class SnakeController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (dead)
+            return;
         if(Vector3.Distance(latestStamp,transform.position) >= 1f) // cross grid
         {
             latestStamp = new Vector3(Mathf.Round(transform.position.x), transform.position.y, Mathf.Round(transform.position.z));
@@ -133,7 +136,7 @@ public class SnakeController : MonoBehaviour
     void Grow()
     {
         GameObject go = Instantiate(bodyPrefab);
-        print("body count" + bodies.Count);
+        //print("body count" + bodies.Count);
 
         if (bodies.Count > 0)
         {
@@ -149,10 +152,30 @@ public class SnakeController : MonoBehaviour
             //go.transform.position = new Vector3(Mathf.Round(transform.position.x), transform.position.y, Mathf.Round(transform.position.z));
             go.transform.position = transform.position;
         }
-        
         bodies.Add(go.GetComponent<BodyNode>());
         path.Add(new Vector3());
     }
 
-    
+    private void OnTriggerEnter(Collider other)
+    {
+        Debug.Log("collide" + other.name);
+        if(other.gameObject.tag =="Wall")
+        {
+            //die
+            Die();
+        }
+        else if(other.gameObject.tag == "Item")
+        {
+            Grow();
+            levelController.RandomPosition();
+            point++;
+        }
+        
+    }
+
+    private void Die()
+    {
+        //show Ui stop
+        dead = true;
+    }
 }
