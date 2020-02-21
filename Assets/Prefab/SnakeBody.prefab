@@ -107,7 +107,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prevNode: {fileID: 0}
-  killAble: 0
+  killAble: 1
+  isFirst: 0
 --- !u!54 &3747777740410150621
 Rigidbody:
   m_ObjectHideFlags: 0
