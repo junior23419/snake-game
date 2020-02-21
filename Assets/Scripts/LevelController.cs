@@ -15,16 +15,10 @@ public class LevelController : MonoBehaviour
         RandomPosition();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     public void RandomPosition()
     {
         var exclude = snake.path;
-        var range = Enumerable.Range(-5, 11).Select(i => Enumerable.Range(-5, 11).Select(j => new Vector3(i, snake.transform.position.y, j)));
+        var range = Enumerable.Range(-10, 21).Select(i => Enumerable.Range(-10, 21).Select(j => new Vector3(i, snake.transform.position.y, j)));
         List<List<Vector3>> filteredVectors = new List<List<Vector3>>();
         int size = 0;
         foreach (IEnumerable<Vector3> a in range.ToList())
@@ -47,5 +41,11 @@ public class LevelController : MonoBehaviour
             }
         }
         return false;
+    }
+
+    public void ResetLevel()
+    {
+        snake.ResetLevel();
+        RandomPosition();
     }
 }

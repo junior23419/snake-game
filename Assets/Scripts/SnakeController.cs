@@ -1,14 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.UI;
 public class SnakeController : MonoBehaviour
 {
-    enum DIRECTION { LEFT,RIGHT,UP,DOWN};
-    DIRECTION direction;
+
     public float speed;
     public GameObject bodyPrefab;
     public GameObject markerPrefab;
+    public Text scoreText;
+    public GameObject TextPanel;
+
     List<BodyNode> bodies;
     bool dead = false;
     bool isMovingHorizontally = false;
@@ -16,21 +18,19 @@ public class SnakeController : MonoBehaviour
     Vector3 latestStamp;
     public LevelController levelController;
     int point = 0;
-
+    Vector3 originPos;
+    Vector3 originRotation;
     // Start is called before the first frame update
     void Start()
     {
+        dead = true;
+        originRotation = transform.eulerAngles;
+        originPos = transform.position;
         path = new List<Vector3>();
         bodies = new List<BodyNode>();
-        isMovingHorizontally = true;
-        latestStamp = new Vector3(Mathf.Round(transform.position.x), transform.position.y, Mathf.Round(transform.position.z));
-        GameObject go = Instantiate(markerPrefab);
-        go.transform.position = latestStamp;
-        path.Add(new Vector3(latestStamp.x, latestStamp.y, latestStamp.z));
-        direction = DIRECTION.LEFT;
+        ResetLevel();
     }
-    int lastX = 0;
-    int lastY = 0;
+
     // Update is called once per frame
     void Update()
     {
@@ -46,78 +46,69 @@ public class SnakeController : MonoBehaviour
 
         if ((Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))&& !isMovingHorizontally)
         {
-            Debug.Log("turn");
-            //latestStamp = new Vector3(Mathf.Round(transform.position.x), transform.position.y, Mathf.Round(transform.position.z));
             transform.eulerAngles = new Vector3(0, -90, 0);
-            transform.position = new Vector3(Mathf.Round(transform.position.x), transform.position.y, Mathf.Round(transform.position.z));
-
-            //sameposition
-            if (Vector3.Distance(transform.position, latestStamp) < 0.1f)
+            Vector3 snapPos = new Vector3(Mathf.Round(transform.position.x), transform.position.y, Mathf.Round(transform.position.z));
+            if (Vector3.Distance(snapPos, latestStamp) < 0.1f) //samepos
             {
-                //transform.position += new Vector3(-1, 0, 0);
+                snapPos += new Vector3(-1, 0, 0);
+                //latestStamp = snapPos;
             }
+            transform.position = snapPos;
+
             isMovingHorizontally = true;
-            direction = DIRECTION.LEFT;
-            //ManagePath();
+
+
         }
         else if ((Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow)) && !isMovingHorizontally)
         {
-            Debug.Log("turn");
-            //latestStamp = new Vector3(Mathf.Round(transform.position.x), transform.position.y, Mathf.Round(transform.position.z));
             transform.eulerAngles = new Vector3(0, 90, 0);
-            isMovingHorizontally = true;
-            transform.position = new Vector3(Mathf.Round(transform.position.x), transform.position.y, Mathf.Round(transform.position.z));
-            if (Vector3.Distance(transform.position, latestStamp) < 0.1f)
+            Vector3 snapPos = new Vector3(Mathf.Round(transform.position.x), transform.position.y, Mathf.Round(transform.position.z));
+            if (Vector3.Distance(snapPos, latestStamp) < 0.1f) //samepos
             {
-                //transform.position += new Vector3(1, 0, 0);
+                snapPos += new Vector3(1, 0, 0);
+                //latestStamp = snapPos;
             }
-            direction = DIRECTION.RIGHT;
-            //ManagePath();
+            isMovingHorizontally = true;
+            transform.position = snapPos;
+
+
         }
         else if ((Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow)) && isMovingHorizontally)
         {
-            Debug.Log("turn");
-            //latestStamp = new Vector3(Mathf.Round(transform.position.x), transform.position.y, Mathf.Round(transform.position.z));
             transform.eulerAngles = new Vector3(0, 0, 0);
-            isMovingHorizontally = false;
-            transform.position = new Vector3(Mathf.Round(transform.position.x), transform.position.y, Mathf.Round(transform.position.z));
-            if (Vector3.Distance(transform.position, latestStamp) < 0.1f)
+            Vector3 snapPos = new Vector3(Mathf.Round(transform.position.x), transform.position.y, Mathf.Round(transform.position.z));
+            if (Vector3.Distance(snapPos, latestStamp) < 0.1f) //samepos
             {
-                //transform.position += new Vector3(0, 0, 1);
+                snapPos += new Vector3(0, 0, 1);
+                //latestStamp = snapPos;
             }
-            direction = DIRECTION.UP;
-            //ManagePath();
+            isMovingHorizontally = false;
+            transform.position = snapPos;
+
         }
         else if ((Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow)) && isMovingHorizontally)
         {
-            Debug.Log("turn");
-            //latestStamp = new Vector3(Mathf.Round(transform.position.x), transform.position.y, Mathf.Round(transform.position.z));
             transform.eulerAngles = new Vector3(0, -180, 0);
-            isMovingHorizontally = false;
-            transform.position = new Vector3(Mathf.Round(transform.position.x), transform.position.y, Mathf.Round(transform.position.z));
-            if (Vector3.Distance(transform.position, latestStamp) < 0.1f)
+            Vector3 snapPos = new Vector3(Mathf.Round(transform.position.x), transform.position.y, Mathf.Round(transform.position.z));
+            if (Vector3.Distance(snapPos, latestStamp) < 0.1f) //samepos
             {
-                //transform.position += new Vector3(0, 0, -1);
+                snapPos += new Vector3(0, 0, -1);
+                //latestStamp = snapPos;
             }
-            direction = DIRECTION.DOWN;
-            //ManagePath();
+            isMovingHorizontally = false;
+            transform.position = snapPos;
+
         }
 
         transform.position += transform.forward * Time.deltaTime * speed;
-
-
         if(Input.GetKeyDown(KeyCode.Space))
-        {
-            Grow();
-        }
+            Grow(); 
     }
 
     void ManagePath()
     {
-        //latestStamp = new Vector3(Mathf.Round(transform.position.x), transform.position.y, Mathf.Round(transform.position.z));
-
-        if (path.Count == 1)
-            return;
+        //if (path.Count == 1)
+        //    return;
 
         for(int i=0;i<path.Count-1;i++)
         {
@@ -129,7 +120,6 @@ public class SnakeController : MonoBehaviour
         for (int i=0;i<bodies.Count;i++)
         {
             bodies[i].SetTarget(path[i]);
-            //Debug.Log("path " + i + " " + path[i]);
         }
     }
 
@@ -149,6 +139,8 @@ public class SnakeController : MonoBehaviour
         {
 
             go.GetComponent<BodyNode>().prevNode = this.gameObject;
+            go.GetComponent<BodyNode>().isFirst = true;
+            go.GetComponent<BodyNode>().killAble = false;
             //go.transform.position = new Vector3(Mathf.Round(transform.position.x), transform.position.y, Mathf.Round(transform.position.z));
             go.transform.position = transform.position;
         }
@@ -158,24 +150,67 @@ public class SnakeController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("collide" + other.name);
-        if(other.gameObject.tag =="Wall")
+        //Debug.Log("collide" + other.name);
+        if (other.gameObject.tag == "Wall")
         {
             //die
             Die();
         }
-        else if(other.gameObject.tag == "Item")
+        else if (other.gameObject.tag == "Body")
+        {
+            if (other.GetComponent<BodyNode>().killAble)
+                Die();
+        }
+        else if (other.gameObject.tag == "Item" )
         {
             Grow();
             levelController.RandomPosition();
             point++;
+            scoreText.text = point.ToString();
         }
-        
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.tag == "Body")
+        {
+            other.GetComponent<BodyNode>().killAble = true;
+        }
     }
 
     private void Die()
     {
         //show Ui stop
         dead = true;
+        TextPanel.SetActive(true);
+        //scoreText.gameObject.SetActive(true);
+    }
+
+    public void ResetLevel()
+    {
+        
+
+        KillAllBodies();
+        bodies.Clear();
+        path.Clear();
+        TextPanel.SetActive(false);
+        point = 0;
+        scoreText.text = point.ToString();
+
+
+        dead = false;
+        isMovingHorizontally = true;
+        transform.position = originPos;
+        transform.eulerAngles = originRotation;
+        latestStamp = new Vector3(Mathf.Round(transform.position.x), transform.position.y, Mathf.Round(transform.position.z));
+        path.Add(new Vector3(latestStamp.x, latestStamp.y, latestStamp.z));
+    }
+
+    void KillAllBodies()
+    {
+        foreach(BodyNode go in bodies)
+        {
+            Destroy(go.transform.gameObject);
+        }
     }
 }
